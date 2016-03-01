@@ -8,7 +8,7 @@
   "activationCommands": {
     "atom-workspace": "prototype-block-highlight-plugin:toggle"
   },
-  "repository": "https://github.com/atom/prototype-block-highlight-plugin",
+  "repository": "https://github.com/gingenhagen/prototype-block-highlight-plugin",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"

@@ -6,3 +6,13 @@
 
 .prototype-block-highlight-plugin {
 }
+
+atom-text-editor.is-focused::shadow {
+  .line.cursor-line, .line-number.cursor-line-no-selection {
+    background-color: transparent;
+  }
+
+  .highlight.block-highlight .region {
+    background-color: rgba(153, 187, 255, 0.04);
+  }
+}
