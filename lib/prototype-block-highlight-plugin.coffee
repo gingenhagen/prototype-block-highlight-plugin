@@ -35,6 +35,7 @@ module.exports = PrototypeBlockHighlightPlugin =
     return if not start.isEqual end
 
     enclosingRange = new BracketMatcher(editor).enclosingRange(end)
+    return if not enclosingRange?
 
     marker = editor.markBufferRange enclosingRange
     decoration = editor.decorateMarker(marker, {type: 'highlight', class: 'block-highlight'})
