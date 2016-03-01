@@ -1,16 +1,6 @@
 PrototypeBlockHighlightPluginView = require './prototype-block-highlight-plugin-view'
+BracketMatcher = require './bracket-matcher'
 {CompositeDisposable, Range, Point} = require 'atom'
-
-LEFT_BRACES = ['(', '[', '{']
-RIGHT_BRACES = [')', ']', '}']
-LTR_BRACE_MAP =
-  '(': ')'
-  '[': ']'
-  '{': '}'
-RTL_BRACE_MAP =
-  ')': '('
-  ']': '['
-  '}': '{'
 
 module.exports = PrototypeBlockHighlightPlugin =
   prototypeBlockHighlightPluginView: null
@@ -44,59 +34,9 @@ module.exports = PrototypeBlockHighlightPlugin =
     {start, end} = editor.getSelectedBufferRange()
     return if not start.isEqual end
 
-    # if we are right before a starting brace, then we should search for the matching one
-    # if we are right before an ending brace, then we should search for the matching front
-    # if we are right after an ending brace, then we should search for the matching front
-    # otherwise, search for unmatched braces before and after the cursor
+    enclosingRange = new BracketMatcher(editor).enclosingRange(end)
 
-    cursorPos = end
-    charBefore = editor.getTextInBufferRange new Range(cursorPos, cursorPos.traverse([0, -1]))
-    charAfter = editor.getTextInBufferRange new Range(cursorPos, cursorPos.traverse([0, 1]))
-
-    leftBrace = rightBrace = leftBracePos = rightBracePos = leftSearchRange = rightSearchRange = null
-    if charAfter in LEFT_BRACES
-      leftBrace = charAfter
-      rightBrace = LTR_BRACE_MAP[leftBrace]
-      leftBracePos = cursorPos
-      rightSearchRange = new Range(leftBracePos.traverse([0, 1]), [Infinity, 0])
-      editor.scanInBufferRange new RegExp('\\' + rightBrace), rightSearchRange,
-        ({range, stop}) =>
-          rightBracePos = range.end
-          stop()
-    else if charAfter in RIGHT_BRACES
-      rightBrace = charAfter
-      leftBrace = RTL_BRACE_MAP[rightBrace]
-      rightBracePos = cursorPos.traverse([0, 1])
-      leftSearchRange = new Range([0, 0], rightBracePos.traverse([0, -1]))
-      editor.backwardsScanInBufferRange new RegExp('\\' + leftBrace), leftSearchRange,
-        ({range, stop}) =>
-          leftBracePos = range.start
-          stop()
-    else if charBefore in RIGHT_BRACES
-      rightBrace = charBefore
-      leftBrace = RTL_BRACE_MAP[rightBrace]
-      rightBracePos = cursorPos
-      leftSearchRange = new Range([0, 0], rightBracePos.traverse([0, -1]))
-      editor.backwardsScanInBufferRange new RegExp('\\' + leftBrace), leftSearchRange,
-        ({range, stop}) =>
-          leftBracePos = range.start
-          stop()
-    else
-      leftSearchRange = new Range([0, 0], cursorPos)
-      rightSearchRange = new Range(cursorPos, [Infinity, 0])
-      editor.backwardsScanInBufferRange /[\(\[\{]/, leftSearchRange,
-        ({matchText, range, stop}) =>
-          leftBrace = matchText
-          leftBracePos = range.start
-          stop()
-      rightBrace = LTR_BRACE_MAP[leftBrace]
-      editor.scanInBufferRange new RegExp('\\' + rightBrace), rightSearchRange,
-        ({range, stop}) =>
-          rightBracePos = range.end
-          stop()
-
-    console.log leftBracePos + rightBracePos
-    marker = editor.markBufferRange new Range(leftBracePos, rightBracePos)
+    marker = editor.markBufferRange enclosingRange
     decoration = editor.decorateMarker(marker, {type: 'highlight', class: 'block-highlight'})
     @markers.push marker
 
