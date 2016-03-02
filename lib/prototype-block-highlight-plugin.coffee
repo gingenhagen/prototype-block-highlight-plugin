@@ -19,8 +19,8 @@ module.exports = PrototypeBlockHighlightPlugin =
     @subscriptions.add atom.commands.add 'atom-workspace', 'prototype-block-highlight-plugin:toggle': => @toggle()
 
     atom.workspace.observeTextEditors (editor) =>
-      @handleCursor(editor)
-      @subscriptions.add editor.onDidChangeCursorPosition @handleCursor.bind(@, editor)
+      @refreshBlockHighlight(editor)
+      @subscriptions.add editor.onDidChangeSelectionRange @refreshBlockHighlight.bind(@, editor)
 
   resetMarkers: ->
     for decoration in @markers
@@ -28,7 +28,7 @@ module.exports = PrototypeBlockHighlightPlugin =
       decoration = null
     @markers = []
 
-  handleCursor: (editor) ->
+  refreshBlockHighlight: (editor) ->
     @resetMarkers()
 
     {start, end} = editor.getSelectedBufferRange()

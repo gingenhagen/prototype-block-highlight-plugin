@@ -87,10 +87,8 @@ class BracketMatcher
       @editor.backwardsScanInBufferRange /[\(\)\[\]\{\}]/g, leftSearchRange,
         ({matchText, range, stop}) =>
           if matchText in RIGHT_BRACKETS
-            debugger
             bracketStack.push matchText
           else if matchText in LEFT_BRACKETS
-            debugger
             if bracketStack[bracketStack.length - 1] is LTR_BRACKET_MAP[matchText]
               bracketStack.pop()
             else
