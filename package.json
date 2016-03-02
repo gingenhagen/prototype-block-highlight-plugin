@@ -1,13 +1,10 @@
 {
-  "name": "prototype-block-highlight-plugin",
-  "main": "./lib/prototype-block-highlight-plugin",
-  "version": "0.0.0",
+  "name": "block-highlight-plugin",
+  "main": "./lib/main",
+  "version": "0.1.0",
   "description": "A short description of your package",
   "keywords": [
   ],
-  "activationCommands": {
-    "atom-workspace": "prototype-block-highlight-plugin:toggle"
-  },
   "repository": "https://github.com/gingenhagen/prototype-block-highlight-plugin",
   "license": "MIT",
   "engines": {

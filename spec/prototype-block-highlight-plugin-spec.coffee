@@ -1,62 +1,46 @@
-PrototypeBlockHighlightPlugin = require '../lib/prototype-block-highlight-plugin'
+BlockHighlightPlugin = require '../lib/prototype-block-highlight-plugin'
 
 # Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
 #
 # To run a specific `it` or `describe` block add an `f` to the front (e.g. `fit`
 # or `fdescribe`). Remove the `f` to unfocus the block.
 
-describe "PrototypeBlockHighlightPlugin", ->
-  [workspaceElement, activationPromise] = []
+describe "BlockHighlightPlugin", ->
+  [editor, buffer] = []
 
   beforeEach ->
-    workspaceElement = atom.views.getView(atom.workspace)
-    activationPromise = atom.packages.activatePackage('prototype-block-highlight-plugin')
+    waitsForPromise ->
+      atom.workspace.open()
 
-  describe "when the prototype-block-highlight-plugin:toggle event is triggered", ->
-    it "hides and shows the modal panel", ->
-      # Before the activation event the view is not on the DOM, and no panel
-      # has been created
-      expect(workspaceElement.querySelector('.prototype-block-highlight-plugin')).not.toExist()
+    waitsForPromise ->
+      atom.packages.activatePackage('prototype-block-highlight-plugin')
 
-      # This is an activation event, triggering it will cause the package to be
-      # activated.
-      atom.commands.dispatch workspaceElement, 'prototype-block-highlight-plugin:toggle'
+    runs ->
+      editor = atom.workspace.getActiveTextEditor()
 
-      waitsForPromise ->
-        activationPromise
+  describe 'when the block-highlight-plugin is active', ->
 
-      runs ->
-        expect(workspaceElement.querySelector('.prototype-block-highlight-plugin')).toExist()
+    getDecorations = ->
+      return editor.getHighlightDecorations().filter (decoration) -> decoration.properties.class is 'block-highlight'
 
-        prototypeBlockHighlightPluginElement = workspaceElement.querySelector('.prototype-block-highlight-plugin')
-        expect(prototypeBlockHighlightPluginElement).toExist()
+    it 'highlights the current block', ->
+      editor.setText("asdf[qwer]zxcv")
 
-        prototypeBlockHighlightPluginPanel = atom.workspace.panelForItem(prototypeBlockHighlightPluginElement)
-        expect(prototypeBlockHighlightPluginPanel.isVisible()).toBe true
-        atom.commands.dispatch workspaceElement, 'prototype-block-highlight-plugin:toggle'
-        expect(prototypeBlockHighlightPluginPanel.isVisible()).toBe false
+      editor.setCursorBufferPosition([0, 4])
 
-    it "hides and shows the view", ->
-      # This test shows you an integration test testing at the view level.
+      decorations = getDecorations()
+      expect(decorations.length).toBe 1
+      marker = decorations[0].marker
+      expect(marker.getStartBufferPosition()).toEqual [0, 4]
+      expect(marker.getEndBufferPosition()).toEqual [0, 10]
 
-      # Attaching the workspaceElement to the DOM is required to allow the
-      # `toBeVisible()` matchers to work. Anything testing visibility or focus
-      # requires that the workspaceElement is on the DOM. Tests that attach the
-      # workspaceElement to the DOM are generally slower than those off DOM.
-      jasmine.attachToDOM(workspaceElement)
+    it 'highlights multiple lines', ->
+      editor.setText("asdf[qwer\nzxcv]")
 
-      expect(workspaceElement.querySelector('.prototype-block-highlight-plugin')).not.toExist()
+      editor.setCursorBufferPosition([0, 4])
 
-      # This is an activation event, triggering it causes the package to be
-      # activated.
-      atom.commands.dispatch workspaceElement, 'prototype-block-highlight-plugin:toggle'
-
-      waitsForPromise ->
-        activationPromise
-
-      runs ->
-        # Now we can test for view visibility
-        prototypeBlockHighlightPluginElement = workspaceElement.querySelector('.prototype-block-highlight-plugin')
-        expect(prototypeBlockHighlightPluginElement).toBeVisible()
-        atom.commands.dispatch workspaceElement, 'prototype-block-highlight-plugin:toggle'
-        expect(prototypeBlockHighlightPluginElement).not.toBeVisible()
+      decorations = getDecorations()
+      expect(decorations.length).toBe 1
+      marker = decorations[0].marker
+      expect(marker.getStartBufferPosition()).toEqual [0, 4]
+      expect(marker.getEndBufferPosition()).toEqual [1, 5]

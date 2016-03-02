@@ -1,4 +1,4 @@
-{Range, Point} = require 'atom'
+{ Range, Point } = require 'atom'
 
 LEFT_BRACKETS = ['(', '[', '{']
 RIGHT_BRACKETS = [')', ']', '}']
