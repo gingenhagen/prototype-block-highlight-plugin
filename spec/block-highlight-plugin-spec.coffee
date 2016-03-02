@@ -1,4 +1,4 @@
-BlockHighlightPlugin = require '../lib/prototype-block-highlight-plugin'
+BlockHighlightPlugin = require '../lib/block-highlight-plugin'
 
 # Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
 #
@@ -13,7 +13,7 @@ describe "BlockHighlightPlugin", ->
       atom.workspace.open()
 
     waitsForPromise ->
-      atom.packages.activatePackage('prototype-block-highlight-plugin')
+      atom.packages.activatePackage('block-highlight-plugin')
 
     runs ->
       editor = atom.workspace.getActiveTextEditor()

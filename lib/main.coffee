@@ -1,4 +1,4 @@
-BlockHighlightPlugin = require './prototype-block-highlight-plugin'
+BlockHighlightPlugin = require './block-highlight-plugin'
 
 module.exports =
   activate: ->
